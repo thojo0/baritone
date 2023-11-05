@@ -48,72 +48,48 @@ public final class LitematicaHelper {
     }
 
     /**
-     * @return if there are loaded schematics.
+     * @return the name of the selected schematic.
      */
-    public static boolean hasLoadedSchematic() {
-        return DataManager.getSchematicPlacementManager().getAllSchematicsPlacements().size() > 0;
+    public static String getName() {
+        return DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement().getName();
     }
 
     /**
-     * @return the index of the currently selected schematic. -1 if none selected.
-     */
-    public static Integer getSelectedIndex() {
-        try {
-            return DataManager.getSchematicPlacementManager().getAllSchematicsPlacements().indexOf(DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement());
-        } catch (NullPointerException e) {
-            return -1;
-        }
-    }
-
-    /**
-     * @param i index of the Schematic in the schematic placement list.
-     * @return the name of the requested schematic.
-     */
-    public static String getName(int i) {
-        return DataManager.getSchematicPlacementManager().getAllSchematicsPlacements().get(i).getName();
-    }
-
-    /**
-     * @param i index of the Schematic in the schematic placement list.
      * @return the world coordinates of the schematic origin. This can but does not have to be the minimum corner.
      */
-    public static Vec3i getOrigin(int i) {
-        return DataManager.getSchematicPlacementManager().getAllSchematicsPlacements().get(i).getOrigin();
+    public static Vec3i getOrigin() {
+        return DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement().getOrigin();
     }
 
     /**
-     * @param i index of the Schematic in the schematic placement list.
      * @return Filepath of the schematic file.
      */
-    public static File getSchematicFile(int i) {
-        return DataManager.getSchematicPlacementManager().getAllSchematicsPlacements().get(i).getSchematicFile();
+    public static File getSchematicFile() {
+        return DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement().getSchematicFile();
     }
 
     /**
-     * @param i index of the Schematic in the schematic placement list.
      * @return rotation of the schematic placement.
      */
-    public static Rotation getRotation(int i) {
-        return DataManager.getSchematicPlacementManager().getAllSchematicsPlacements().get(i).getRotation();
+    public static Rotation getRotation() {
+        return DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement().getRotation();
     }
 
     /**
-     * @param i index of the Schematic in the schematic placement list.
      * @return the mirroring of the schematic placement.
      */
-    public static Mirror getMirror(int i) {
-        return DataManager.getSchematicPlacementManager().getAllSchematicsPlacements().get(i).getMirror();
+    public static Mirror getMirror() {
+        return DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement().getMirror();
     }
 
     /**
      * @param schematic original schematic.
-     * @param i         index of the Schematic in the schematic placement list.
      * @return the minimum corner coordinates of the schematic, after the original schematic got rotated and mirrored.
      */
-    public static Vec3i getCorrectedOrigin(LitematicaSchematic schematic, int i) {
-        int x = LitematicaHelper.getOrigin(i).getX();
-        int y = LitematicaHelper.getOrigin(i).getY();
-        int z = LitematicaHelper.getOrigin(i).getZ();
+    public static Vec3i getCorrectedOrigin(LitematicaSchematic schematic) {
+        int x = LitematicaHelper.getOrigin().getX();
+        int y = LitematicaHelper.getOrigin().getY();
+        int z = LitematicaHelper.getOrigin().getZ();
         int mx = schematic.getOffsetMinCorner().getX();
         int my = schematic.getOffsetMinCorner().getY();
         int mz = schematic.getOffsetMinCorner().getZ();
@@ -121,8 +97,8 @@ public final class LitematicaHelper {
         int sz = (schematic.getZ() - 1) * -1;
 
         Vec3i correctedOrigin;
-        Mirror mirror = LitematicaHelper.getMirror(i);
-        Rotation rotation = LitematicaHelper.getRotation(i);
+        Mirror mirror = LitematicaHelper.getMirror();
+        Rotation rotation = LitematicaHelper.getRotation();
 
         //todo there has to be a better way to do this but i cant finde it atm
         switch (mirror) {
@@ -194,17 +170,16 @@ public final class LitematicaHelper {
      * IDFK this just grew and it somehow works. If you understand how, pls tell me.
      *
      * @param schemIn give in the original schematic.
-     * @param i       index of the Schematic in the schematic placement list.
      * @return get it out rotated and mirrored.
      */
-    public static LitematicaSchematic blackMagicFuckery(LitematicaSchematic schemIn, int i) {
-        LitematicaSchematic tempSchem = schemIn.getCopy(LitematicaHelper.getRotation(i).ordinal() % 2 == 1);
+    public static LitematicaSchematic blackMagicFuckery(LitematicaSchematic schemIn) {
+        LitematicaSchematic tempSchem = schemIn.getCopy(LitematicaHelper.getRotation().ordinal() % 2 == 1);
         for (int yCounter = 0; yCounter < schemIn.getY(); yCounter++) {
             for (int zCounter = 0; zCounter < schemIn.getZ(); zCounter++) {
                 for (int xCounter = 0; xCounter < schemIn.getX(); xCounter++) {
                     Vec3i xyzHolder = new Vec3i(xCounter, yCounter, zCounter);
-                    xyzHolder = LitematicaHelper.doMirroring(xyzHolder, schemIn.getX() - 1, schemIn.getZ() - 1, LitematicaHelper.getMirror(i));
-                    for (int turns = 0; turns < LitematicaHelper.getRotation(i).ordinal(); turns++) {
+                    xyzHolder = LitematicaHelper.doMirroring(xyzHolder, schemIn.getX() - 1, schemIn.getZ() - 1, LitematicaHelper.getMirror());
+                    for (int turns = 0; turns < LitematicaHelper.getRotation().ordinal(); turns++) {
                         if ((turns % 2) == 0) {
                             xyzHolder = LitematicaHelper.rotate(xyzHolder, schemIn.getX() - 1, schemIn.getZ() - 1);
                         } else {
@@ -213,7 +188,7 @@ public final class LitematicaHelper {
                     }
                     BlockState state = schemIn.getDirect(xCounter, yCounter, zCounter);
                     try {
-                        state = state.mirror(LitematicaHelper.getMirror(i)).rotate(LitematicaHelper.getRotation(i));
+                        state = state.mirror(LitematicaHelper.getMirror()).rotate(LitematicaHelper.getRotation());
                     } catch (NullPointerException e) {
                         //nothing to worry about it's just a hole in the schematic.
                     }

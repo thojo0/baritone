@@ -218,34 +218,17 @@ public final class BuilderProcess extends BaritoneProcessHelper implements IBuil
     @Override
     public void buildOpenLitematic() {
         if (LitematicaHelper.isLitematicaPresent()) {
-            Integer selectedIndex = LitematicaHelper.getSelectedIndex();
-            if (selectedIndex != -1) {
-                buildOpenLitematic(selectedIndex);
-            } else {
+            try {
+                String name = LitematicaHelper.getName();
+                LitematicaSchematic schematic1 = new LitematicaSchematic(NbtIo.readCompressed(Files.newInputStream(LitematicaHelper.getSchematicFile().toPath())), false);
+                Vec3i correctedOrigin = LitematicaHelper.getCorrectedOrigin(schematic1);
+                ISchematic schematic2 = LitematicaHelper.blackMagicFuckery(schematic1);
+                schematic2 = applyMapArtAndSelection(origin, (IStaticSchematic) schematic2);
+                build(name, schematic2, correctedOrigin);
+            } catch (NullPointerException e) {
                 logDirect("No schematic currently selected");
-            }
-        } else {
-            logDirect("Litematica is not present");
-        }
-    }
-
-    @Override
-    public void buildOpenLitematic(int i) {
-        if (LitematicaHelper.isLitematicaPresent()) {
-            //if java.lang.NoSuchMethodError is thrown see comment in SchematicPlacementManager
-            if (LitematicaHelper.hasLoadedSchematic()) {
-                String name = LitematicaHelper.getName(i);
-                try {
-                    LitematicaSchematic schematic1 = new LitematicaSchematic(NbtIo.readCompressed(Files.newInputStream(LitematicaHelper.getSchematicFile(i).toPath())), false);
-                    Vec3i correctedOrigin = LitematicaHelper.getCorrectedOrigin(schematic1, i);
-                    ISchematic schematic2 = LitematicaHelper.blackMagicFuckery(schematic1, i);
-                    schematic2 = applyMapArtAndSelection(origin, (IStaticSchematic) schematic2);
-                    build(name, schematic2, correctedOrigin);
-                } catch (Exception e) {
-                    logDirect("Schematic File could not be loaded.");
-                }
-            } else {
-                logDirect("No schematic currently loaded");
+            } catch (Exception e) {
+                logDirect("Schematic File could not be loaded.");
             }
         } else {
             logDirect("Litematica is not present");

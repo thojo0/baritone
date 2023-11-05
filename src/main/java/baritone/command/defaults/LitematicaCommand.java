@@ -34,20 +34,8 @@ public class LitematicaCommand extends Command {
 
     @Override
     public void execute(String label, IArgConsumer args) throws CommandException {
-        int schematic = 0;
-        if (args.hasAny()) {
-            args.requireMax(1);
-            if (args.is(Integer.class)) {
-                schematic = args.getAs(Integer.class) - 1;
-            }
-            try {
-                baritone.getBuilderProcess().buildOpenLitematic(schematic);
-            } catch (IndexOutOfBoundsException e) {
-                logDirect("Pleas provide a valid index.");
-            }
-        } else {
-            baritone.getBuilderProcess().buildOpenLitematic();
-        }
+        args.requireMax(0);
+        baritone.getBuilderProcess().buildOpenLitematic();
     }
 
     @Override
@@ -63,11 +51,10 @@ public class LitematicaCommand extends Command {
     @Override
     public List<String> getLongDesc() {
         return Arrays.asList(
-                "Build a schematic currently open in Litematica.",
+                "Build a schematic currently selected in Litematica.",
                 "",
                 "Usage:",
-                "> litematica",
-                "> litematica <#>"
+                "> litematica"
         );
     }
 }
